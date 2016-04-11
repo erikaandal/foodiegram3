@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>international foodie</title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDD3o_vzkcWmw4-yDtuFZ0F4lioqWn8eU8"></script>
+    <script src="http://cooper-union-maps-proxy.herokuapp.com/js/draw.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.3.5/tabletop.min.js"></script>
+    <script src="https://cdn.rawgit.com/CooperUnion/javascript-learning/master/tabletop-simple.js"></script>
+    <script>
+    $(document).ready(function(){
+
+      var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1UN1ZpB6o4J2NuMtlLew2is4ivor6Q7YcYXHzz-FNrvs/pubhtml';
+
+      getSpreadsheetJSON(public_spreadsheet_url, function(response){
+        console.log(response[0]);
+        for(var i=0; i<response.length; i++) {
+
+          $("#header").css({
+            "backgroundColor":response[0].color,
+            "fontSize":response[0].size,
+            "fontFamily":response[0].fontfamily
+          });
+          $("body").css({
+            "backgroundColor":response[0].color,
+          });
+        }
+      });
+
+    });
+
+      $(document).ready(function(){
+      var search = prompt("what type of food do you want to see");
+      $.getJSON("http://cooper-union-instagram-proxy.herokuapp.com/search/tag/" + search.replace(" ","") + "food?count=100", function(response){
+        console.log(response);
+        var howMany = 0;
+        var photoLocation = [];
+        for(var i=0; i<response.length; i++) {
+                  $("#images").append("<img src="+response[i].images.thumbnail.url+"/>");}
+        for(var i=0; i<response.length; i++) {
+          if((response[i].location) && (response[i].location.latitude !== null)) {
+            howMany++;
+            var position = {
+              "title":response[i].caption.text,
+              "map": new google.maps.LatLng(response[i].location.latitude,response[i].location.longitude),
+              "link":response[i].link
+            }
+            photoLocation.push(position);
+          }
+        }
+        console.log(howMany)
+        console.log(photoLocation)
+        var mapOptions = {
+          zoom: 1,
+          center: new google.maps.LatLng(3.2882519,10.5092763)
+        };
+        draw('map', mapOptions, photoLocation);
+      });
+      });
+    </script>
+    <style>
+      #header {
+        margin: auto;
+        position:relative;
+        color:white;
+        text-align: center;
+      }
+      #map {
+        height:500px;
+        width:515px;
+        margin: auto;
+        position:relative;
+        border: 5px solid;
+        background-color: black;
+      }
+      #images {
+        height: 100%;
+        width: 100%;
+        margin-top:60px;
+        margin-right: auto;
+        margin-left: auto;
+        border: 0px;
+        padding: 0px;
+        position: absolute;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="images"></div>
+    <div id="header">international foodie</div>
+    <div id="map"></div>
+  </body>
+</html>
